@@ -1,18 +1,21 @@
 {
   "name": "windego-minapp-generator",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "根据微信小程序官网获取组件信息",
   "main": "index.js",
   "author": "zhangweijie",
   "license": "MIT",
   "scripts": {
-    "clean": "rimraf gen",
+    "clean": "rimraf dist",
     "watch": "tsc -watch -p ./",
-    "start": "node dist/index.js",
-    "build": " tsc",
+    "start": "node dist/wechat/init.js",
+    "build": "tsc",
     "patch": "npm version patch",
     "rp": "npm run clean && npm run build && npm publish",
     "lp": "npm run clean && npm run build && yalc publish"
+  },
+  "bin": {
+    "tpl": "bin/tpl"
   },
   "dependencies": {
     "chalk": "^4.1.1",

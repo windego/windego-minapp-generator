@@ -12,3 +12,4 @@ tsconfig.json
 /temp/
 /__tests__/
 /src/
+gen
