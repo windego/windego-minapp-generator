@@ -1,11 +1,6 @@
 import fetch from 'node-fetch'
 import cheerio from 'cheerio'
-import {
-  ComponentAttrValue,
-  ComponentAttr,
-  TempComponentGroup,
-  TempComponent,
-} from '../types/index'
+import { AttrValue, Attr, TempComponentGroup, TempComponent, Component } from '../types/index'
 import { log, resolvePath, writeJsonToFile } from '../utils/uitls'
 import { checkDirAndCreate } from '../utils/file'
 import { transfer } from '../utils/html2md'
@@ -45,7 +40,7 @@ export const getComponentList = async () => {
   return list
 }
 
-export const getComponentDetail = async (groupName: string, compName: String, url: string) => {
+export const getComponentDetail = async (groupName: string, compName: string, url: string) => {
   log.info(`获取组件:${compName}`)
   const fileName = dirNameMap.get(groupName)
   const docLink = URL.BASE_URL + url
@@ -53,14 +48,28 @@ export const getComponentDetail = async (groupName: string, compName: String, ur
   const html = await res.text()
   const $ = cheerio.load(html)
   const chapters = $('#docContent .content')
-  const sinceHTML = $(chapters.find('p').first()).html() || ''
-  const since = /\d+.\d+.\d+/.exec(sinceHTML)?.[0] || ''
-  // log.info(`获取since:${since}`)
-  let attrs: ComponentAttr[] = []
-  const tableChapters = chapters.find('.table-wrp')
-  const descHtml = $(tableChapters.prev()).html() || ''
-  const desc = transfer(descHtml, URL.BASE_TPL)
+  let since: string = ''
+  let desc: string[] = []
+  const tableWrpIndex = chapters.children().index($('.table-wrp'))
+  const pChapters = chapters.find('p')
+  pChapters.each((index, element) => {
+    const html = $(element).html() || ''
+    const contentLen = $(element).contents().length
+    if (index === 0) {
+      since = /\d+.\d+.\d+/.exec(html)?.[0] || ''
+    } else {
+      if (index < tableWrpIndex - 1) {
+        const blockquote = $(element).closest('blockquote').length
+        if (!blockquote) {
+          desc.push(transfer(html, URL.BASE_TPL))
+        }
+      }
+    }
+  })
   // log.info(`desc:${desc}`)
+  // log.info(`获取since:${since}`)
+  let attrs: Attr[] = []
+  const tableChapters = chapters.find('.table-wrp')
 
   //获取属性及属性值
   tableChapters.each(function (index, element) {
@@ -69,7 +78,7 @@ export const getComponentDetail = async (groupName: string, compName: String, ur
     if (index === 0) {
       tableChapters.each(function (index, element) {
         const tds = $(element).find('td')
-        const attr: ComponentAttr = { name: '' }
+        const attr: Attr = { name: '' }
         tds.each(function (i, ele) {
           const text = $(ele).text() || ''
           switch (i) {
@@ -83,10 +92,10 @@ export const getComponentDetail = async (groupName: string, compName: String, ur
               attr.defaultValue = text
               break
             case 3:
-              attr.required = !!text
+              attr.required = text === '是' ? true : false
               break
             case 4:
-              attr.desc = text
+              attr.desc = [text]
               break
             default:
               attr.since = text
@@ -97,12 +106,12 @@ export const getComponentDetail = async (groupName: string, compName: String, ur
       })
     } else {
       const title = table.prev().text()
-      const name = attrs.filter((i: ComponentAttr) => title.includes(i.name))?.[0]?.name
+      const name = attrs.filter((i: Attr) => title.includes(i.name))?.[0]?.name
       if (name) {
-        const options: ComponentAttrValue[] = []
+        const options: AttrValue[] = []
         tableChapters.each(function (index, element) {
           const tds = $(element).find('td')
-          const option: ComponentAttrValue = { value: '', desc: '' }
+          const option: AttrValue = { value: '', desc: '' }
           tds.each(function (i, ele) {
             const text = $(ele).text() || ''
             switch (i) {
@@ -132,7 +141,6 @@ export const getComponentDetail = async (groupName: string, compName: String, ur
   })
   // log.info(`attrs:${attrs}`)
   // 处理 Bug-Tip
-
   const tips: string[] = []
   const bugs: string[] = []
   const bugTip = chapters.find('#Bug-Tip')
@@ -150,7 +158,7 @@ export const getComponentDetail = async (groupName: string, compName: String, ur
   // log.info(`tips:${tips}`)
   // log.info(`bugs:${bugs}`)
 
-  const compData = {
+  const compData: Component = {
     name: compName,
     desc,
     attrs,

@@ -1,6 +1,6 @@
-import { ComponentAttr, Component } from './component'
+import { Attr, Component } from './component'
 
-export interface CustomAttr extends ComponentAttr {
+export interface CustomAttr extends Attr {
   addBrace?: boolean // 是否加上 {{}}
   boolean?: boolean // 属性是个 boolean 值，不需要加 =
 }

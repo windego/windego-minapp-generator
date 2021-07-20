@@ -1,28 +1,25 @@
-export interface ComponentAttrValue {
+export interface AttrValue {
   value: string
   desc?: string
   since?: string
 }
-export interface ComponentAttr {
+export interface Attr {
   name: string
   type?: any
-  desc?: string ///string[]
+  desc?: string[]
   required?: boolean
   since?: string
   defaultValue?: string
-  options?: ComponentAttrValue[]
+  options?: AttrValue[]
   enum?: any[]
   extras?: any[]
-  subAttrs?: { equal: string; attrs: ComponentAttr[] }[]
 }
 export interface Component {
   name: string
   docLink?: string
   since?: string
   desc: string[]
-  attrs?: ComponentAttr[]
-  authorize?: any
-  relateApis?: any[]
+  attrs?: Attr[]
   notices?: string[]
   tips?: string[]
   bugs?: string[]
