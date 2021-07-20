@@ -1,0 +1,31 @@
+{
+  "name": "windego-minapp-generator",
+  "version": "1.0.0",
+  "description": "根据微信小程序官网获取组件信息",
+  "main": "index.js",
+  "author": "zhangweijie",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rimraf gen",
+    "watch": "tsc -watch -p ./",
+    "start": "node dist/index.js",
+    "build": " tsc",
+    "patch": "npm version patch",
+    "rp": "npm run clean && npm run build && npm publish",
+    "lp": "npm run clean && npm run build && yalc publish"
+  },
+  "dependencies": {
+    "chalk": "^4.1.1",
+    "cheerio": "^1.0.0-rc.10",
+    "dayjs": "^1.10.6",
+    "node-fetch": "^2.6.1",
+    "prettier": "^2.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^16.3.3",
+    "@types/node-fetch": "^2.5.11",
+    "@types/prettier": "^2.3.2",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.3.5"
+  }
+}
