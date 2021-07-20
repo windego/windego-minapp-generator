@@ -1,6 +1,6 @@
 {
   "name": "windego-minapp-generator",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "根据微信小程序官网获取组件信息",
   "main": "index.js",
   "author": "zhangweijie",
