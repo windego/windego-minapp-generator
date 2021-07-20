@@ -46,33 +46,23 @@ export const getComponentList = async () => {
 }
 
 export const getComponentDetail = async (groupName: string, compName: String, url: string) => {
+  log.info(`获取组件:${compName}`)
   const fileName = dirNameMap.get(groupName)
   const docLink = URL.BASE_URL + url
   const res = await fetch(docLink)
   const html = await res.text()
   const $ = cheerio.load(html)
   const chapters = $('#docContent .content')
-  const comp = chapters.find('p')
-  let since: string = ''
-  let desc: string = ''
+  const sinceHTML = $(chapters.find('p').first()).html() || ''
+  const since = /\d+.\d+.\d+/.exec(sinceHTML)?.[0] || ''
+  // log.info(`获取since:${since}`)
   let attrs: ComponentAttr[] = []
-  const tips: string[] = []
-  const bugs: string[] = []
-  comp.each(function (index, element) {
-    const ele = $(element).html() || ''
-    if (index === 0) {
-      since = /\d+.\d+.\d+/.exec(ele)?.[0] || ''
-    } else {
-      if (desc) {
-        desc += '\n\n' + ele
-      } else {
-        desc += ele
-      }
-    }
-  })
-  desc = transfer(desc, URL.BASE_TPL)
   const tableChapters = chapters.find('.table-wrp')
-  log.info('获取属性...')
+  const descHtml = $(tableChapters.prev()).html() || ''
+  const desc = transfer(descHtml, URL.BASE_TPL)
+  // log.info(`desc:${desc}`)
+
+  //获取属性及属性值
   tableChapters.each(function (index, element) {
     const table = $(element)
     const tableChapters = table.find('tr')
@@ -140,10 +130,13 @@ export const getComponentDetail = async (groupName: string, compName: String, ur
       }
     }
   })
+  // log.info(`attrs:${attrs}`)
   // 处理 Bug-Tip
+
+  const tips: string[] = []
+  const bugs: string[] = []
   const bugTip = chapters.find('#Bug-Tip')
   if (bugTip.length) {
-    log.info('处理Bug&Tip...')
     const tipChapter = chapters.find('#Bug-Tip').next().find('ol li')
     tipChapter.each(function (index, element) {
       const html = ($(element).html() || '').replace(/<[^>]*>([^>]*)<\/[^>]*>/gi, '$1')
@@ -154,6 +147,8 @@ export const getComponentDetail = async (groupName: string, compName: String, ur
       }
     })
   }
+  // log.info(`tips:${tips}`)
+  // log.info(`bugs:${bugs}`)
 
   const compData = {
     name: compName,
