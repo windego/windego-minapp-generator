@@ -1,5 +1,6 @@
 import { getAllnames } from './getAllName'
 import { downloadAll, download, changeObjToList } from './download'
+import { createMed } from './createMedToSq'
 
 const init = () => {
   // getAllnames()
@@ -11,5 +12,6 @@ const init = () => {
   // getAllFirst()
   // downloadAll()
   // changeObjToList()
+  createMed()
 }
 init()
